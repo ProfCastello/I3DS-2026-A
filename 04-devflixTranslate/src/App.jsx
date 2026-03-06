@@ -17,6 +17,7 @@ import {
 const App = () => {
   const [movies, setMovies] = useState([]);
   const [search, setSearch] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
   const [language, setLanguage] = useState(() => {
     const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
     const hasSavedLanguage = LANGUAGES.some(
@@ -83,15 +84,77 @@ const App = () => {
 
   return (
     <div id="App">
-      <LanguageSelector
-        languages={LANGUAGES}
-        selectedLanguage={language}
-        onLanguageChange={setLanguage}
-        ariaLabel={t.languageAria}
-      />
+      {/* NAVBAR MOBILE */}
+      <nav className="navbar-mobile">
+        <img src={logo} alt={t.logoAlt} className="navbar-logo" />
+        <button
+          className={`hamburger ${menuOpen ? "active" : ""}`}
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </nav>
+
+      {/* MENU DRAWER - APENAS MOBILE */}
+      {menuOpen && (
+        <div className="menu-drawer">
+          <div className="menu-section">
+            <h3>{t.language || "Idioma"}</h3>
+            <div className="language-options">
+              {LANGUAGES.map((lang) => (
+                <button
+                  key={lang.code}
+                  className={`menu-item ${language === lang.code ? "active" : ""}`}
+                  onClick={() => {
+                    setLanguage(lang.code);
+                    setMenuOpen(false);
+                  }}
+                >
+                  <span
+                    className="flag-inline"
+                    style={{
+                      backgroundImage: `url(https://flagcdn.com/w320/${lang.flagCode}.png)`,
+                    }}
+                  ></span>
+                  <span>{lang.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="menu-divider"></div>
+
+          <div className="menu-section">
+            <h3>{t.theme || "Tema"}</h3>
+            <button
+              className="theme-menu-item"
+              onClick={() => {
+                setTheme(isDarkTheme ? "light" : "dark");
+                setMenuOpen(false);
+              }}
+            >
+              <span className="theme-icon">{isDarkTheme ? "☀️" : "🌙"}</span>
+              <span>{isDarkTheme ? "Modo Claro" : "Modo Escuro"}</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* DESKTOP: Language Selector e Theme Button */}
+      <div className="desktop-only">
+        <LanguageSelector
+          languages={LANGUAGES}
+          selectedLanguage={language}
+          onLanguageChange={setLanguage}
+          ariaLabel={t.languageAria}
+        />
+      </div>
 
       <button
-        className="themeToggle"
+        className="themeToggle desktop-only"
         onClick={() =>
           setTheme((current) => (current === "dark" ? "light" : "dark"))
         }
